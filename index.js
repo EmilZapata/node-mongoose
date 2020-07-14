@@ -1,12 +1,35 @@
+const yenv = require("yenv");
 const mongoose = require("mongoose");
-const connectionString =
-  "mongodb+srv://EmilH:123123**@cluster0.fkspn.mongodb.net/db_test?retryWrites=true&w=majority";
+// const { MONGO_URI } = require("./config");
+const axios = require("axios").default;
+const cheerio = require("cheerio");
+const cron = require("node-cron");
+const env = yenv();
+const MONGO_URI = env.MONGO_URI;
 
-mongoose.connect(connectionString, { useNewUrlParser: true });
+mongoose.connect(MONGO_URI, { useNewUrlParser: true });
+const { BreakingNew } = require("./models");
 
-const Cat = mongoose.model("Cat", { name: String });
+//0 */4 * * *
+cron.schedule("* * * * * *", async () => {
+  console.log("Se ejecuto Job");
+  const html = await axios.get("https://cnnespanol.cnn.com/");
+  const $ = cheerio.load(html.data);
+  const titles = $(".news__title");
+  titles.each((index, element) => {
+    const breakingNew = {
+      title: $(element).text().toString(),
+      link: $(element).children().attr("href"),
+    };
 
-const kitty = new Cat({ name: "Galfield" });
-kitty.save().then(() => console.log("se guardo el gato"));
+    BreakingNew.create([breakingNew]);
+  });
+});
 
-Cat.find().then(console.log);
+// const prueba = new BreakingNew({
+//   title:'Oshe si',
+//   link:'Brrr'
+// })
+// prueba.save().then(() => {console.log('se logro')})
+
+// BreakingNew.find().then(console.log)

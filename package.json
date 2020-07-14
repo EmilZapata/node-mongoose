@@ -12,7 +12,9 @@
   "dependencies": {
     "axios": "^0.19.2",
     "cheerio": "^1.0.0-rc.3",
+    "dotenv": "^8.2.0",
     "mongoose": "^5.9.23",
-    "node-cron": "^2.0.3"
+    "node-cron": "^2.0.3",
+    "yenv": "^2.1.1"
   }
 }
